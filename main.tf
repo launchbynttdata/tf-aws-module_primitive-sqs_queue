@@ -30,8 +30,8 @@ resource "aws_sqs_queue" "queue" {
   redrive_allow_policy              = var.redrive_allow_policy
   fifo_queue                        = var.fifo_queue
   content_based_deduplication       = var.content_based_deduplication
-  sqs_managed_sse_enabled           = var.sqs_managed_sse_enabled
-  kms_master_key_id                 = var.use_aws_managed_sqs_kms_key ? data.aws_kms_alias.sqs[0].target_key_id : var.kms_master_key_id
+  sqs_managed_sse_enabled           = local.use_sqs_managed_sse ? true : null
+  kms_master_key_id                 = local.use_kms_encryption ? (var.use_aws_managed_sqs_kms_key ? data.aws_kms_alias.sqs[0].target_key_id : var.kms_master_key_id) : null
   kms_data_key_reuse_period_seconds = var.kms_data_key_reuse_period_seconds
   deduplication_scope               = var.deduplication_scope
   fifo_throughput_limit             = var.fifo_throughput_limit
