@@ -15,7 +15,5 @@ locals {
     provisioner = "Terraform"
   }
 
-  default_kms_key = data.aws_kms_alias.s3.target_key_id
-
   tags = merge(local.default_tags, var.tags)
 }
