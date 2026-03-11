@@ -14,7 +14,7 @@
 # Count uses a bool so it is known at plan time even when kms_master_key_id is a resource reference.
 data "aws_kms_alias" "sqs" {
   count  = var.use_aws_managed_sqs_kms_key ? 1 : 0
-  name   = "alias/aws/sqs"
+  name   = var.aws_managed_sqs_kms_alias
 }
 
 resource "aws_sqs_queue" "queue" {

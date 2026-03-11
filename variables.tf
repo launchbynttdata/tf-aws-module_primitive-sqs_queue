@@ -108,6 +108,13 @@ variable "use_aws_managed_sqs_kms_key" {
   nullable    = false
 }
 
+variable "aws_managed_sqs_kms_alias" {
+  description = "The KMS alias to use when use_aws_managed_sqs_kms_key is true. Default is the AWS-managed SQS key alias."
+  type        = string
+  default     = "alias/aws/sqs"
+  nullable    = false
+}
+
 variable "kms_master_key_id" {
   description = "The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. See: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html. When use_aws_managed_sqs_kms_key is true, this is ignored and the default key is used. When null and sqs_managed_sse_enabled is not true, encryption at rest is disabled. Mutually exclusive with sqs_managed_sse_enabled = true."
   type        = string
