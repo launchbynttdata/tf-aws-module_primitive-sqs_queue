@@ -101,10 +101,17 @@ variable "sqs_managed_sse_enabled" {
   nullable    = true
 }
 
+variable "use_aws_managed_sqs_kms_key" {
+  description = "When true, use the AWS-managed default SQS KMS key (alias/aws/sqs). Set to false when passing a custom kms_master_key_id (e.g. from aws_kms_key) so the data source count is known at plan time. When false, kms_master_key_id is used (or null for no encryption)."
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
 variable "kms_master_key_id" {
-  description = "The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. See: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html. Defaults to an empty string, which will use the default KMS key for this account. To disable encryption at rest entirely, set this value to `null` and set sqs_managed_sse_enabled to `false`."
+  description = "The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. See: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html. When use_aws_managed_sqs_kms_key is true, this is ignored and the default key is used. When null and sqs_managed_sse_enabled is false, encryption at rest is disabled."
   type        = string
-  default     = ""
+  default     = null
   nullable    = true
 }
 
