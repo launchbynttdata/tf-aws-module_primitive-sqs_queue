@@ -15,7 +15,10 @@ locals {
     provisioner = "Terraform"
   }
 
-  default_kms_key = data.aws_kms_alias.s3.target_key_id
-
   tags = merge(local.default_tags, var.tags)
+
+  # SQS-managed SSE and KMS encryption are mutually exclusive on aws_sqs_queue.
+  # Only one of these may be set on the resource at a time.
+  use_kms_encryption = var.use_aws_managed_sqs_kms_key || (var.kms_master_key_id != null && var.kms_master_key_id != "")
+  use_sqs_managed_sse = var.sqs_managed_sse_enabled == true && !local.use_kms_encryption
 }

@@ -10,8 +10,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-data "aws_kms_alias" "s3" {
-  name = "alias/aws/sqs"
+# Only look up default SQS KMS key when explicitly requested (use_aws_managed_sqs_kms_key = true).
+# Count uses a bool so it is known at plan time even when kms_master_key_id is a resource reference.
+data "aws_kms_alias" "sqs" {
+  count  = var.use_aws_managed_sqs_kms_key ? 1 : 0
+  name   = var.aws_managed_sqs_kms_alias
 }
 
 resource "aws_sqs_queue" "queue" {
@@ -27,8 +30,8 @@ resource "aws_sqs_queue" "queue" {
   redrive_allow_policy              = var.redrive_allow_policy
   fifo_queue                        = var.fifo_queue
   content_based_deduplication       = var.content_based_deduplication
-  sqs_managed_sse_enabled           = var.sqs_managed_sse_enabled
-  kms_master_key_id                 = var.kms_master_key_id == "" ? local.default_kms_key : var.kms_master_key_id
+  sqs_managed_sse_enabled           = local.use_sqs_managed_sse ? true : null
+  kms_master_key_id                 = local.use_kms_encryption ? (var.use_aws_managed_sqs_kms_key ? data.aws_kms_alias.sqs[0].target_key_id : var.kms_master_key_id) : null
   kms_data_key_reuse_period_seconds = var.kms_data_key_reuse_period_seconds
   deduplication_scope               = var.deduplication_scope
   fifo_throughput_limit             = var.fifo_throughput_limit

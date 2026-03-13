@@ -95,16 +95,30 @@ variable "content_based_deduplication" {
 }
 
 variable "sqs_managed_sse_enabled" {
-  description = "Boolean designating if Server-Side Encryption is enabled with SQS-owned encryption keys."
+  description = "Boolean designating if Server-Side Encryption is enabled with SQS-owned encryption keys. Mutually exclusive with use_aws_managed_sqs_kms_key and kms_master_key_id."
   type        = bool
   default     = null
   nullable    = true
 }
 
-variable "kms_master_key_id" {
-  description = "The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. See: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html. Defaults to an empty string, which will use the default KMS key for this account. To disable encryption at rest entirely, set this value to `null` and set sqs_managed_sse_enabled to `false`."
+variable "use_aws_managed_sqs_kms_key" {
+  description = "When true, use the AWS-managed default SQS KMS key (alias/aws/sqs). Set to false when passing a custom kms_master_key_id (e.g. from aws_kms_key) so the data source count is known at plan time. When false, kms_master_key_id is used (or null for no encryption). Mutually exclusive with sqs_managed_sse_enabled = true."
+  type        = bool
+  default     = true
+  nullable    = false
+}
+
+variable "aws_managed_sqs_kms_alias" {
+  description = "The KMS alias to use when use_aws_managed_sqs_kms_key is true. Default is the AWS-managed SQS key alias."
   type        = string
-  default     = ""
+  default     = "alias/aws/sqs"
+  nullable    = false
+}
+
+variable "kms_master_key_id" {
+  description = "The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. See: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html. When use_aws_managed_sqs_kms_key is true, this is ignored and the default key is used. When null and sqs_managed_sse_enabled is not true, encryption at rest is disabled. Mutually exclusive with sqs_managed_sse_enabled = true."
+  type        = string
+  default     = null
   nullable    = true
 }
 
