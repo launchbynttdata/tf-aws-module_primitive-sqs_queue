@@ -23,3 +23,6 @@ updates:
     directory: "/"
     multi-ecosystem-group: "module"
     patterns: ["*"]
+    ignore:
+      - dependency-name: "hashicorp/aws"
+        versions: [">= 6.0.0"]
