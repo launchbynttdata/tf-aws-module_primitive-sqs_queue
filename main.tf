@@ -13,8 +13,8 @@
 # Only look up default SQS KMS key when explicitly requested (use_aws_managed_sqs_kms_key = true).
 # Count uses a bool so it is known at plan time even when kms_master_key_id is a resource reference.
 data "aws_kms_alias" "sqs" {
-  count  = var.use_aws_managed_sqs_kms_key ? 1 : 0
-  name   = var.aws_managed_sqs_kms_alias
+  count = var.use_aws_managed_sqs_kms_key ? 1 : 0
+  name  = var.aws_managed_sqs_kms_alias
 }
 
 resource "aws_sqs_queue" "queue" {
