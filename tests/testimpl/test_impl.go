@@ -1,10 +1,10 @@
 package testimpl
 
 import (
-	"testing"
-	"time"
 	"context"
 	"fmt"
+	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -17,46 +17,7 @@ import (
 func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 	sqsClient := GetSqsClient(t)
 
-	t.Run("QueueExists", func(t *testing.T) {
-		queueUrl := terraform.Output(t, ctx.TerratestTerraformOptions(), "queue_url")
-		queueName := terraform.Output(t, ctx.TerratestTerraformOptions(), "queue_name")
-
-		output, err := sqsClient.ListQueues(context.TODO(), &sqs.ListQueuesInput{
-			QueueNamePrefix: &queueName,
-		})
-		assert.NoErrorf(t, err, "Unable to get queue list, %v", err)
-		queueFound := false
-		fmt.Printf("Queues: %v \n", output.QueueUrls)
-		for _, url := range output.QueueUrls {
-			if url == queueUrl {
-				queueFound = true
-				break
-			}
-		}
-		assert.True(t, queueFound, "Expected queue URL not found in the list")
-	})
-
-	t.Run("DlqExists", func(t *testing.T) {
-		ctx.EnabledOnlyForTests(t, "dlq")
-
-		dlqUrl := terraform.Output(t, ctx.TerratestTerraformOptions(), "dlq_url")
-		dlqName := terraform.Output(t, ctx.TerratestTerraformOptions(), "dlq_name")
-
-		output, err := sqsClient.ListQueues(context.TODO(), &sqs.ListQueuesInput{
-			QueueNamePrefix: &dlqName,
-		})
-		assert.NoErrorf(t, err, "Unable to get queue list, %v", err)
-		fmt.Printf("Queues: %v \n", output.QueueUrls)
-
-		queueFound := false
-		for _, url := range output.QueueUrls {
-			if url == dlqUrl {
-				queueFound = true
-				break
-			}
-		}
-		assert.True(t, queueFound, "Expected DLQ URL not found in the list")
-	})
+	TestComposableCompleteReadonly(t, ctx)
 
 	t.Run("SendAndReceiveMessage", func(t *testing.T) {
 		queueUrl := terraform.Output(t, ctx.TerratestTerraformOptions(), "queue_url")
@@ -124,6 +85,50 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 	})
 }
 
+func TestComposableCompleteReadonly(t *testing.T, ctx types.TestContext) {
+	sqsClient := GetSqsClient(t)
+
+	t.Run("QueueExists", func(t *testing.T) {
+		queueUrl := terraform.Output(t, ctx.TerratestTerraformOptions(), "queue_url")
+		queueName := terraform.Output(t, ctx.TerratestTerraformOptions(), "queue_name")
+
+		output, err := sqsClient.ListQueues(context.TODO(), &sqs.ListQueuesInput{
+			QueueNamePrefix: &queueName,
+		})
+		assert.NoErrorf(t, err, "Unable to get queue list, %v", err)
+		queueFound := false
+		fmt.Printf("Queues: %v \n", output.QueueUrls)
+		for _, url := range output.QueueUrls {
+			if url == queueUrl {
+				queueFound = true
+				break
+			}
+		}
+		assert.True(t, queueFound, "Expected queue URL not found in the list")
+	})
+
+	t.Run("DlqExists", func(t *testing.T) {
+		ctx.EnabledOnlyForTests(t, "dlq")
+
+		dlqUrl := terraform.Output(t, ctx.TerratestTerraformOptions(), "dlq_url")
+		dlqName := terraform.Output(t, ctx.TerratestTerraformOptions(), "dlq_name")
+
+		output, err := sqsClient.ListQueues(context.TODO(), &sqs.ListQueuesInput{
+			QueueNamePrefix: &dlqName,
+		})
+		assert.NoErrorf(t, err, "Unable to get queue list, %v", err)
+		fmt.Printf("Queues: %v \n", output.QueueUrls)
+
+		queueFound := false
+		for _, url := range output.QueueUrls {
+			if url == dlqUrl {
+				queueFound = true
+				break
+			}
+		}
+		assert.True(t, queueFound, "Expected DLQ URL not found in the list")
+	})
+}
 
 func GetAWSConfig(t *testing.T) (cfg aws.Config) {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
