@@ -20,7 +20,7 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 	TestComposableCompleteReadonly(t, ctx)
 
 	t.Run("SendAndReceiveMessage", func(t *testing.T) {
-		queueUrl := terraform.Output(t, ctx.TerratestTerraformOptions(), "queue_url")
+		queueUrl := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "queue_url")
 
 		messageBody := "Hello, World!"
 
@@ -50,8 +50,8 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 	t.Run("SendAndFailToReceiveMessage", func(t *testing.T) {
 		ctx.EnabledOnlyForTests(t, "dlq")
 
-		queueUrl := terraform.Output(t, ctx.TerratestTerraformOptions(), "queue_url")
-		dlqUrl := terraform.Output(t, ctx.TerratestTerraformOptions(), "dlq_url")
+		queueUrl := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "queue_url")
+		dlqUrl := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "dlq_url")
 
 		messageBody := "Hello, DLQ!"
 
@@ -89,8 +89,8 @@ func TestComposableCompleteReadonly(t *testing.T, ctx types.TestContext) {
 	sqsClient := GetSqsClient(t)
 
 	t.Run("QueueExists", func(t *testing.T) {
-		queueUrl := terraform.Output(t, ctx.TerratestTerraformOptions(), "queue_url")
-		queueName := terraform.Output(t, ctx.TerratestTerraformOptions(), "queue_name")
+		queueUrl := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "queue_url")
+		queueName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "queue_name")
 
 		output, err := sqsClient.ListQueues(context.TODO(), &sqs.ListQueuesInput{
 			QueueNamePrefix: &queueName,
@@ -110,8 +110,8 @@ func TestComposableCompleteReadonly(t *testing.T, ctx types.TestContext) {
 	t.Run("DlqExists", func(t *testing.T) {
 		ctx.EnabledOnlyForTests(t, "dlq")
 
-		dlqUrl := terraform.Output(t, ctx.TerratestTerraformOptions(), "dlq_url")
-		dlqName := terraform.Output(t, ctx.TerratestTerraformOptions(), "dlq_name")
+		dlqUrl := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "dlq_url")
+		dlqName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "dlq_name")
 
 		output, err := sqsClient.ListQueues(context.TODO(), &sqs.ListQueuesInput{
 			QueueNamePrefix: &dlqName,
